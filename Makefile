@@ -1,6 +1,8 @@
 
-NAME=hi
-CMD_FILE=cmd/hi.go
+NAME := hi
 
-run:
-	go run $(CMD_FILE)
+test: hi
+	echo this is a test | ./hi test lime
+
+$(NAME):
+	go build -o $@

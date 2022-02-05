@@ -1,3 +1,3 @@
-module github.com/jettero/app-hi/v0
+module github.com/jettero/app-hi
 
 go 1.17

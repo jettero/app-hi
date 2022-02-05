@@ -7,7 +7,7 @@ import (
 
 func Execute() {
 	fmt.Println("hi")
-	for i := 1; i < 3; i++ {
+	for i := 1; i < len(os.Args); i++ {
 		fmt.Println(os.Args[i])
 	}
 }
