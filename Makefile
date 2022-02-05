@@ -1,8 +1,18 @@
 
 NAME := hi
 
-test: hi
-	echo this is a test | ./hi test lime
+# dummy or command targets
 
-$(NAME):
+run-example: hi
+	echo This is a test. | ./hi . coal This purple test sky
+
+complain:
+	find ./ -type f -name \*.go | xargs golint
+
+clean:
+	git clean -dfx
+
+# derived rules
+
+$(NAME): cmd/hi/hi.go main.go
 	go build -o $@

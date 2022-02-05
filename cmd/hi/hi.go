@@ -1,13 +1,18 @@
 package hi
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
 
+// Execute runs the actual program (meant to be used in main.go)
 func Execute() {
-	fmt.Println("hi")
-	for i := 1; i < len(os.Args); i++ {
-		fmt.Println(os.Args[i])
-	}
+	reader := bufio.NewReader(os.Stdin)
+	line, something := reader.ReadString('\n')
+
+	fmt.Println("line: ")
+	fmt.Println(line)
+	fmt.Println("something: ")
+	fmt.Println(something)
 }
