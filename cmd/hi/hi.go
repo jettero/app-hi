@@ -16,10 +16,18 @@ type pattern struct {
 
 func printLine(patterns []pattern, line string) {
 	for i := 0; i < len(patterns); i++ {
-		fmt.Printf("pat: %v\n", patterns[i])
-		line = patterns[i].matcher.ReplaceAllStringFunc(line, func(m string) string {
-			return fmt.Sprintf("[%s]%s[/%s]", patterns[i].color, m, patterns[i].color)
-		})
+		// Go documentation is a pile of shit. When you go a
+		// `go doc regexp.Regxep.FindAllStringIndex` yo'll never find this 'n'
+		// param anywhere. If you read the entire `go doc regexp.Regexp`
+		// section, you still won't find it.
+		//
+		// You have to guess to read the entire package help and happen to
+		// notice the brief desctiption in a small-ish paragraph in the middle
+		// of the overview section.
+		//
+		// … the -1 means we want them all, not 0 or 1 or 2 …
+		indices := patterns[i].matcher.FindAllStringIndex(line, -1)
+		fmt.Printf("pat: %v, indices: %v\n", patterns[i], indices)
 	}
 	fmt.Println(line)
 }
