@@ -1,5 +1,6 @@
 
 NAME := hi
+SRC_FILES := $(shell find ./ -type f -name \*.go)
 
 # dummy or command targets
 
@@ -14,5 +15,5 @@ clean:
 
 # derived rules
 
-$(NAME): cmd/hi/hi.go main.go
+$(NAME): $(SRC_FILES)
 	go build -o $@
