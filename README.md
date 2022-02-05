@@ -8,11 +8,17 @@ addresses, keywords, ip addresses, etc) over time or through the text.
 
 It's particularly useful for things like:
 
-    tcpdump -vlnei blah0 "(complicated filter thingy)" \
-        | hi . coal addr:1 lime addr:2 '\.80\b' red '\.443\b' green
+    tcpdump -lnei vhb.42 -c 3 tcp port 22 \
+        hi . coal \
+        fe:ed:be:ef:00:00 purple \
+        fe:ed:be:ef:00:01 sky \
+        '\d+\.\d+\.\d+\.\d+\.\d+' green \
+        '\d+\.\d+\.\d+\.\d+' yellow
 
 now as the packets roll in, the two addresses and a couple of port numbers are
 going to be instantly visible in the streaming wall of packet info.
+
+![example output](cruft/example.png?raw=true "example output")
 
 # Whythisthen?
 
