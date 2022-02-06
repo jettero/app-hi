@@ -3,6 +3,7 @@ package patprint
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -64,23 +65,36 @@ func stripLineEndings(line string) string {
 }
 
 func printRuler(line string) {
-	ruler := ""
-	tlen := 0
-
 	rline := []rune(line)
 
-	fmt.Println()
-	fmt.Println("printRuler( len(line) =", len(line), " len(rline) =", len(rline), ")")
+	ruler_l0 := ""
+	ruler_l1 := ""
 
-	for tlen = 0; tlen < len(rline); tlen += 10 {
-		ruler = ruler + fmt.Sprintf("%-10d", tlen)
+	a := 0
+	for i := 0; i < len(rline); i++ {
+		v := strconv.Itoa(a)
+		if (a % 10) == 0 {
+			d := len([]rune(ruler_l1)) - len(ruler_l0)
+			if d > 0 {
+				ruler_l0 += strings.Repeat(" ", d)
+			}
+			ruler_l0 += v
+			ruler_l1 += "↓"
+
+		} else {
+			ruler_l1 += v[len(v)-1:]
+		}
+
+		s := string(rline[i : i+1])
+		a += len(s)
 	}
-	fmt.Println(ruler)
-
-	rruler := []rune(strings.Repeat("↓123456789", tlen/10))
-	ruler = string(rruler[:len(rline)])
-
-	fmt.Println(ruler)
+	fmt.Println()
+	if len(ruler_l0) > 0 {
+		fmt.Println(ruler_l0)
+	}
+	if len(ruler_l1) > 0 {
+		fmt.Println(ruler_l1)
+	}
 }
 
 func PrintLine(patterns []pattern, line string) {
