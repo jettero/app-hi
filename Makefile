@@ -5,7 +5,8 @@ SRC_FILES := $(shell find ./ -type f -name \*.go)
 # dummy or command targets
 
 run-example: hi
-	echo This is a test. | ./hi . coal This purple test sky '.es\S+' cyan
+	echo "This is an übertest with — multibyte unicode — characters." \
+		| ./hi . coal This purple test sky '.es\S+' cyan
 
 complain:
 	find ./ -type f -name \*.go | xargs golint
