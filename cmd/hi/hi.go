@@ -12,16 +12,14 @@ import (
 func Execute() {
 	reader := bufio.NewReader(os.Stdin)
 
+	// convert "a(ab)aba" "purple" to the patterns PrintLine uses
+	patterns := patprint.ProcessPatterns(os.Args)
+
 	for true {
 		line, something := reader.ReadString('\n')
-		patterns := patprint.ProcessPatterns(os.Args)
-
+		patprint.PrintLine(patterns, line)
 		if something == io.EOF {
-			if len(line) > 0 {
-				patprint.PrintLine(patterns, line)
-			}
 			break
 		}
-		patprint.PrintLine(patterns, line)
 	}
 }
