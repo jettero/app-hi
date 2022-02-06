@@ -3,6 +3,7 @@ package patprint
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 type pattern struct {
@@ -50,7 +51,45 @@ func ProcessPatterns(args []string) []pattern {
 	return patterns
 }
 
+func stripLineEndings(line string) string {
+	l := 0
+	for len(line) != l {
+		l = len(line)
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
+		// if we removed something we'll loop through here again in case there's more
+		// otherwise fall through, we're done
+	}
+	return line
+}
+
+func printRuler(line string) {
+	ruler := ""
+	tlen := 0
+
+	rline := []rune(line)
+
+	fmt.Println()
+	fmt.Println("printRuler( len(line) =", len(line), " len(rline) =", len(rline), ")")
+
+	for tlen = 0; tlen < len(rline); tlen += 10 {
+		ruler = ruler + fmt.Sprintf("%-10d", tlen)
+	}
+	fmt.Println(ruler)
+
+	rruler := []rune(strings.Repeat("↓123456789", tlen/10))
+	ruler = string(rruler[:len(rline)])
+
+	fmt.Println(ruler)
+}
+
 func PrintLine(patterns []pattern, line string) {
+	line = stripLineEndings(line)
+
+	if len(line) < 1 {
+		return
+	}
+
 	for i := 0; i < len(patterns); i++ {
 		// Go documentation (perhaps only regexp documentation) is a pile of
 		// shit. When you go a `go doc regexp.Regxep.FindAllStringIndex` yo'll
@@ -66,5 +105,7 @@ func PrintLine(patterns []pattern, line string) {
 		annotations := generateAnnotations(patterns[i].color, indices)
 		fmt.Printf("pat: %v, annotations: %v\n", patterns[i], annotations)
 	}
+
+	printRuler(line)
 	fmt.Println(line)
 }
