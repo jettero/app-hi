@@ -3,7 +3,7 @@ NAME := hi
 
 PKG_FILES := $(wildcard pkg/*/*.go)
 CMD_FILES := $(wildcard cmd/*/*.go)
-CMD_NAMES := $(patsubst %.go,%, $(notdir $(CMD_FILES)))
+CMD_NAMES := $(patsubst cmd/%,%, $(wildcard cmd/*))
 
 run-examples: run-hi run-quick
 
@@ -25,7 +25,8 @@ q run-quick: quick
 	./quick white on blue
 	./quick alert
 
-list:
+info list:
+	@ sed -e 's/^/.deps: /' .deps
 	@ echo "PKG_FILES: $(PKG_FILES)"
 	@ echo "CMD_FILES: $(CMD_FILES)"
 	@ echo "CMD_NAMES: $(CMD_NAMES)"
@@ -39,7 +40,8 @@ clean:
 $(CMD_NAMES): $(PKG_FILES) Makefile
 
 .deps: Makefile
-	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/$$i.go; echo "	go build -o $$i \$$<"; done > $@
+	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; echo "	go build -o $$i \$$<"; \
+		done > $@
 
 include .deps
 
