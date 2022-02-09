@@ -93,9 +93,9 @@ func main() {
 	patterns := patprint.ProcessPatterns(os.Args)
 
 	for true {
-		line, something := reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
 		patprint.PrintLine(patterns, line)
-		if something == io.EOF {
+		if err == io.EOF {
 			break
 		}
 	}
