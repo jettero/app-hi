@@ -1,1 +1,0 @@
-cmd/hi/hi.go
