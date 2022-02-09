@@ -2,9 +2,12 @@ package patprint
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	c "github.com/jettero/app-hi/pkg/colors"
 )
 
 type pattern struct {
@@ -40,7 +43,7 @@ func generateAnnotations(color string, indices [][]int) []annotation {
 func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
-	for i := 1; i < len(args); i += 2 {
+	for i := 1; i+1 < len(args); i += 2 {
 		p := pattern{
 			pattern: args[i],
 			matcher: regexp.MustCompile(args[i]),
@@ -64,7 +67,7 @@ func stripLineEndings(line string) string {
 	return line
 }
 
-func printRuler(line string) {
+func PrintRuler(line string) {
 	rline := []rune(line)
 
 	ruler_l0 := ""
@@ -97,12 +100,102 @@ func printRuler(line string) {
 	}
 }
 
+func combineAnnotationsStack(annotations_stack [][]annotation) []annotation {
+	min := int(^uint(0) >> 1)
+	max := 0
+
+	// flatten/collect all the annoatations from the stack
+	var annotations []annotation
+	for _, asi := range annotations_stack {
+		for _, a := range asi {
+			if a.start < min {
+				min = a.start
+			}
+			if a.stop > max {
+				max = a.stop
+			}
+			annotations = append(annotations, a)
+		}
+	}
+
+	// prepend a reset code to the beginning of the stack
+	// in python we could just
+	//   annotations.insert(0, annotation(color="reset", ...))
+	// I wonder if there's a more concise way to say this in golang, cuz the
+	// following sucks. (I don't need it anyway, but I'm leaving it here until
+	// I get sick of looking at it or find an answer to the conciseness
+	// question)
+	// annotations = append([]annotation{annotation{color: "reset", start: min, stop: max}}, annotations...)
+
+	var combined []annotation
+	for i := min; i < max; i++ {
+		var winner annotation
+		for _, a := range annotations {
+			if i >= a.start && i < a.stop {
+				winner = a
+			}
+		}
+
+		if i >= winner.start && i < winner.stop {
+			if len(combined) == 0 {
+				if winner.color != "reset" {
+					combined = append(combined, annotation{color: winner.color, start: i, stop: i + 1})
+				}
+			} else {
+				r := &combined[len(combined)-1]
+				if r.color == winner.color && r.stop == i {
+					r.stop++
+				} else {
+					combined = append(combined, annotation{color: winner.color, start: i, stop: i + 1})
+				}
+			}
+		}
+	}
+
+	return combined
+}
+
+func fakeColor(color string) string {
+	return fmt.Sprintf("[%s]", strings.Join(c.FixColor(color), " "))
+}
+
+func ColorizeLine(line string, annotations []annotation) string {
+	var pos int = 0
+	var ret string = ""
+
+	cf := c.Color
+	if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" || os.Getenv("DEBUG_HI_MARKUP") == "1" {
+		cf = fakeColor
+	}
+	RST := cf("reset")
+
+	for _, a := range annotations {
+		if a.start > pos {
+			ret += line[pos:a.start]
+			pos = a.start
+		}
+
+		ret += cf(a.color)
+		ret += line[a.start:a.stop]
+		ret += RST
+		pos = a.stop
+	}
+
+	if pos < len(line) {
+		ret += line[pos:]
+	}
+
+	return ret
+}
+
 func PrintLine(patterns []pattern, line string) {
 	line = stripLineEndings(line)
 
 	if len(line) < 1 {
 		return
 	}
+
+	var annotations_stack [][]annotation
 
 	for i := 0; i < len(patterns); i++ {
 		// Go documentation (perhaps only regexp documentation) is a pile of
@@ -116,10 +209,22 @@ func PrintLine(patterns []pattern, line string) {
 		//
 		// … the -1 means we want them all, not 0 or 1 or 2 …
 		indices := patterns[i].matcher.FindAllStringIndex(line, -1)
-		annotations := generateAnnotations(patterns[i].color, indices)
-		fmt.Printf("pat: %v, annotations: %v\n", patterns[i], annotations)
+		a := generateAnnotations(patterns[i].color, indices)
+		if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" {
+			fmt.Printf("pat: %v => %v\n", patterns[i], a)
+		}
+		annotations_stack = append(annotations_stack, a)
 	}
 
-	printRuler(line)
+	combined := combineAnnotationsStack(annotations_stack)
+
+	if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" {
+		fmt.Printf("combineAnnotationsStack():\n\tannotations_satck = %v\n\tcombined = %v\n",
+			annotations_stack, combined)
+		PrintRuler(line)
+	}
+
+	line = ColorizeLine(line, combined)
+
 	fmt.Println(line)
 }
