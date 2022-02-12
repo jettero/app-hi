@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 
-exec go run cmd/hi/hi.go "$@"
+exec go run ./cmd/hi "$@"
