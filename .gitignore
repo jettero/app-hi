@@ -4,4 +4,4 @@
 /quick
 tags
 wtf
-file
+file[0-9]*
