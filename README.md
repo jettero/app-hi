@@ -1,10 +1,10 @@
 
 # Wassis?
 
-I wrote an app hundred years ago
-[App::HI](https://github.com/jettero/term--ansicolorx) in Perl that helped me
-colorize stream text and log text for the purposes of tracking things (mac
-addresses, keywords, ip addresses, etc) over time or through the text.
+I wrote an app a hundred years ago
+[App::HI](https://github.com/jettero/term--ansicolorx)… in Perl… that helped me
+colorize stream text and log text for the purposes of tracking things over time
+through the text (mac addresses, keywords, ip addresses, and the like).
 
 It's particularly useful for things like:
 
@@ -23,9 +23,9 @@ going to be instantly visible in the streaming wall of packet info.
 # Whythisthen?
 
 As the years increment since I stopped writing Perl — not out of spite or malace
-mind you … I still love Perl, I just don't use it at work like ever — it's
+mind you … I still love Perl, I just don't use it at work like ever. It's
 becoming more and more difficult, time consuming and/or annoying to install a
-working perl, CPAN::Minus, and finally App::HI everywhere I go.
+working Perl, CPAN::Minus, and App::HI everywhere I go.
 
 At my current job, I think it'd be essentially impossible to get it installed on
 even a tiny faction of the hosts where I'd like to use it …
