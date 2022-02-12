@@ -65,10 +65,10 @@ func PrintHelp() {
 	sort.Slice(items, func(i, j int) bool {
 		return len(items[i]) > len(items[j])
 	})
-	RST := c.Color("reset")
+	RST := c.Color("reset", "")
 	s := b.String()
 	for _, item := range items {
-		s = strings.Replace(s, fmt.Sprintf(".%s.", item), fmt.Sprintf("%s%s%s", c.Color(item), item, RST), -1)
+		s = strings.Replace(s, fmt.Sprintf(".%s.", item), fmt.Sprintf("%s%s", c.Color(item, item), RST), -1)
 	}
 
 	fmt.Print(s)
