@@ -5,7 +5,7 @@ PKG_FILES := $(wildcard pkg/*/*.go)
 CMD_FILES := $(wildcard cmd/*/*.go)
 CMD_NAMES := $(patsubst cmd/%,%, $(wildcard cmd/*))
 
-run-examples: run-hi run-quick
+run-examples: run-hi
 
 h run-hi: hi
 	echo "This is an übertest with — multibyte unicode — characters." \
@@ -18,12 +18,6 @@ h run-hi: hi
 		be umber \
 		ib mc_curs \
 		es violet
-
-q run-quick: quick
-	./quick sky on coal
-	./quick nc_file
-	./quick white on blue
-	./quick alert
 
 info list:
 	@ sed -e 's/^/.deps: /' .deps
@@ -40,7 +34,7 @@ clean:
 $(CMD_NAMES): $(PKG_FILES) Makefile
 
 .deps: Makefile
-	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; echo "	go build -o $$i \$$<"; \
+	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; echo "	go build ./cmd/$$i"; \
 		done > $@
 
 include .deps
