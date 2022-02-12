@@ -155,8 +155,8 @@ func combineAnnotationsStack(annotations_stack [][]annotation) []annotation {
 	return combined
 }
 
-func fakeColor(color string) string {
-	return fmt.Sprintf("[%s]", strings.Join(c.FixColor(color), " "))
+func fakeColor(color string, words string) string {
+	return fmt.Sprintf("[%s]%", strings.Join(c.FixColor(color), " "), words)
 }
 
 func ColorizeLine(line string, annotations []annotation) string {
@@ -167,7 +167,7 @@ func ColorizeLine(line string, annotations []annotation) string {
 	if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" || os.Getenv("DEBUG_HI_MARKUP") == "1" {
 		cf = fakeColor
 	}
-	RST := cf("reset")
+	RST := cf("reset", "")
 
 	for _, a := range annotations {
 		if a.start > pos {
@@ -175,8 +175,7 @@ func ColorizeLine(line string, annotations []annotation) string {
 			pos = a.start
 		}
 
-		ret += cf(a.color)
-		ret += line[a.start:a.stop]
+		ret += cf(a.color, line[a.start:a.stop])
 		ret += RST
 		pos = a.stop
 	}
