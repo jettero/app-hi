@@ -8,7 +8,7 @@ CMD_NAMES := $(patsubst cmd/%,%, $(wildcard cmd/*))
 run-examples: run-hi
 
 h run-hi:
-	< cruft/dhcp.log ./hi.go \
+	< cruft/dhcp.log ./cmd/hi/main.go \
 		. coal \
 		'DHCP(\w+)' cyan \
 		DHCP ocean \
