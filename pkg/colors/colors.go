@@ -1,10 +1,12 @@
 package patprint
 
 import (
+	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
-	"github.com/zeebo/xxh3"
+	lru "github.com/hashicorp/golang-lru"
 )
 
 var ColorTable = map[string]string{
@@ -77,22 +79,24 @@ var NickTable = map[string]string{
 }
 
 var uniqueColorsTable = []string{
+	// skip these as we're likely to have the lines colorized as bold black or some form of white already
+	// and we want to stand out
+	// "coal",
+	// "white",
+	// "grey",
+
 	"red",
 	"green",
 	"blue",
 	"magenta",
 	"ocean",
-	"grey",
-	"coal",
 	"umber",
 	"lime",
 	"yellow",
 	"sky",
 	"violet",
 	"cyan",
-	"white",
 
-	// note that we can't use "on red" here, we only get one pass through FixColor
 	"coal on_blue",
 	"umber on_blue",
 	"white on_blue",
@@ -108,6 +112,9 @@ var uniqueColorsTable = []string{
 	"black on_yellow",
 	"blue on_green",
 }
+
+var lruWordsCache *lru.Cache
+var uniqueColorIdx int
 
 func FixColor(color string, words string) []string {
 	color = strings.ToLower(color)
@@ -125,11 +132,36 @@ func FixColor(color string, words string) []string {
 	var ret []string
 	for _, f := range fields {
 		if f == "unique" || f == "hash" {
-			sum := xxh3.HashString(words)
-			idx := int(sum % uint64(len(uniqueColorsTable)))
-			ret = append(ret, strings.Fields(uniqueColorsTable[idx])...)
-			// as soon as we hit unique, we take over processing of the whole color token set
-			break
+			if lruWordsCache == nil {
+				tmp, err := lru.New(128)
+				if err != nil {
+					os.Stderr.WriteString(fmt.Sprintf("ERROR creating LRU cache for \"unique\" color: %v", err))
+					os.Exit(1)
+				}
+				lruWordsCache = tmp
+			}
+			stupid_generic_type_thing, ok := lruWordsCache.Get(words)
+			var idx int
+			if ok {
+				// stupid generic thing is an interface{} …
+				// so we can't just int(stupid_generic_type_thing) like you'd expect.
+				//
+				// This is probably to enhance readability or some other bullshit
+				// argument like that. It's likely an artifact of not introducing
+				// proper generics so fucking late (1.18 up); so people invented
+				// this shitty duck typing-lite with generic interfaces.
+				//
+				// Gotta use a "type assertion" here. Fuck I hate this language.
+				idx = stupid_generic_type_thing.(int)
+			} else {
+				idx = uniqueColorIdx
+				uniqueColorIdx = (uniqueColorIdx + 1) % len(uniqueColorsTable)
+				lruWordsCache.Add(words, idx)
+			}
+			// TODO: "unique on_blue" should filter for those colors or something …
+			// but that seems overly complicated for the moment
+			// NOTE: we also short abort on unique keywords and return after one more pass through Fixcolor
+			return FixColor(uniqueColorsTable[int(idx)], "")
 		}
 		if g := NickTable[f]; len(g) > 0 {
 			ret = append(ret, strings.Fields(g)...)
