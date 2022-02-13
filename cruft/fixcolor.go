@@ -17,5 +17,5 @@ func main() {
 		a = "yellow on blue"
 	}
 
-	fmt.Println(a, "→", c.Color(a, strings.Join(c.FixColor(a), " "))+c.Color("reset", ""))
+	fmt.Println(a, "→", c.Color(a, strings.Join(c.FixColor(a, ""), " "))+c.Color("reset", ""))
 }
