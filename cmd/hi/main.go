@@ -101,4 +101,8 @@ func main() {
 			break
 		}
 	}
+
+	// We're exiting anyway, so I'm not sure it's necessary to go free those
+	// regex memories, but it won't hurt either.
+	patprint.PostProcessPatterns(patterns)
 }
