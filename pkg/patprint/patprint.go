@@ -189,7 +189,7 @@ func combineAnnotationsStack(annotations_stack [][]annotation) []annotation {
 }
 
 func fakeColor(color string, words string) string {
-	return fmt.Sprintf("[%s]%", strings.Join(c.FixColor(color), " "), words)
+	return fmt.Sprintf("[%s]%", strings.Join(c.FixColor(color, words), " "), words)
 }
 
 func ColorizeLine(line string, annotations []annotation) string {
