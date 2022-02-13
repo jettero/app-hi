@@ -17,7 +17,7 @@ valgrind: hi
 	less -eS +G valgrind.log
 
 h run-hi:
-	< cruft/dhcp.log ./cmd/hi/main.go \
+	< cruft/dhcp.log ./hi.sh \
 		. coal \
 		'DHCP(\w+)' cyan \
 		DHCP ocean \
