@@ -1,7 +1,6 @@
 package patprint
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -55,6 +54,7 @@ var NickTable = map[string]string{
 	"gray":      "white",
 	"white":     "bold white",
 
+	// note that we can't use "on red" here, we only get one pass through FixColor
 	"dire":  "bold yellow on_red",
 	"alert": "bold yellow on_red",
 	"todo":  "black on_yellow",
@@ -76,71 +76,32 @@ var NickTable = map[string]string{
 	"mc_cwd":  "black on_white",
 }
 
-var ickyTable = map[[3]int]bool{
-	// This exclusion list can be pretty subjective Is it truely invisible like
-	// \x1b[31;41m (red on red)?  or is it just hard to read like \x1b[0;34;40m
-	// (dark blue on black)?
-	//
-	// Anything combinations that looked a little hard to read on my own
-	// personal loonix xfce-terminal or on my fancy macos iterm2 console --
-	// ECMA-48 colors look quite different between the two by the way -- I here
-	// marked as "icky"; ymmv, but I'm trying to describe a generalized icky
-	// factor for dark backgrounds here.
-	//
-	// I also assumed (not always true) black background (40) is very close or
-	// identical to default background (49, often transparent) and therefore
-	// turn any 40 bg into 49 bg. Black backgrounds can stand and even look
-	// interesting on transparent terminals where the underlying background is
-	// not black, but I'm assuming this is commonly not the case.
+var uniqueColorsTable = []string{
+	"red",
+	"green",
+	"blue",
+	"magenta",
+	"ocean",
+	"grey",
+	"coal",
+	"umber",
+	"lime",
+	"yellow",
+	"sky",
+	"violet",
+	"cyan",
+	"white",
 
-	// 40 black
-	[3]int{0, 30, 40}: true,
-	[3]int{0, 34, 40}: true,
-	// 41 red
-	[3]int{0, 31, 41}: true,
-	[3]int{0, 35, 41}: true,
-	[3]int{1, 30, 41}: true,
-	[3]int{1, 34, 41}: true,
-	[3]int{1, 35, 41}: true,
-	// 42 green
-	[3]int{0, 32, 42}: true,
-	[3]int{0, 36, 42}: true,
-	[3]int{0, 37, 42}: true,
-	[3]int{1, 32, 42}: true,
-	[3]int{1, 33, 42}: true,
-	[3]int{1, 36, 42}: true,
-	[3]int{1, 37, 42}: true,
-	// 43 orange
-	[3]int{0, 33, 43}: true, // almost visible in iterm2
-	[3]int{0, 36, 43}: true,
-	[3]int{0, 37, 43}: true,
-	[3]int{1, 31, 43}: true,
-	//[3]int{1, 34, 43}: true, // borderline
-	[3]int{1, 35, 43}: true,
-	// 44 blue
-	[3]int{0, 34, 44}: true,
-	[3]int{0, 30, 44}: true,
-	// 45 magenta
-	[3]int{0, 35, 45}: true,
-	[3]int{0, 31, 45}: true,
-	[3]int{1, 30, 45}: true, // horrible on iterm2, sorta ok in xfce
-	[3]int{1, 34, 45}: true, // horrible on iterm2, sorta ok in xfce
-	//[3]int{1, 35, 45}: true, // borderline
-	// 46 cyan
-	[3]int{0, 36, 46}: true,
-	[3]int{0, 32, 46}: true,
-	[3]int{0, 33, 46}: true,
-	[3]int{0, 37, 46}: true,
-	// 47 white
-	[3]int{0, 37, 47}: true,
-	[3]int{0, 32, 47}: true,
-	[3]int{0, 33, 47}: true, // my iterm2 theme seems to treat non-bold yellow as an actual dim yellow
-	[3]int{0, 36, 47}: true,
-	[3]int{1, 32, 47}: true,
-	[3]int{1, 36, 47}: true,
+	// note that we can't use "on red" here, we only get one pass through FixColor
+	"coal on_blue",
+	"umber on_blue",
+	"white on_blue",
+	"cyan on_blue",
+	// "yellow on_blue", // yellow on blue is readable, but indistinguishable from white on blue
+	// "lime on_blue", // same with cyan and lime
 }
 
-func FixColor(color string) []string {
+func FixColor(color string, words string) []string {
 	color = strings.ToLower(color)
 	sep, _ := regexp.Compile(`[^a-z]+`)
 	nc, _ := regexp.Compile(`[nm]c\s+([a-z]+)`)
@@ -151,8 +112,14 @@ func FixColor(color string) []string {
 	color = on.ReplaceAllString(color, "on_$1")
 	color = un.ReplaceAllString(color, "unbold")
 
+	fields := strings.Fields(color)
+
 	var ret []string
-	for _, f := range strings.Fields(color) {
+	for _, f := range fields {
+		if f == "unique" || f == "hash" {
+			idx := int(xxh3.HashString(words) % uint64(len(uniqueColorsTable)))
+			ret = append(ret, strings.Fields(uniqueColorsTable[idx])...)
+		}
 		if g := NickTable[f]; len(g) > 0 {
 			ret = append(ret, strings.Fields(g)...)
 		} else {
@@ -166,47 +133,11 @@ func FixColor(color string) []string {
 func Color(color string, words string) string {
 	var ret []string
 
-	if color == "unique" || color == "hash" {
-		return UniqueColorForString(words) + words
-	}
-
-	for _, f := range FixColor(color) {
+	for _, f := range FixColor(color, words) {
 		if v := ColorTable[f]; len(v) > 0 {
 			ret = append(ret, v)
 		}
 	}
 
 	return "\x1b[" + strings.Join(ret, ";") + "m" + words
-}
-
-var MostColorsTable []string
-
-func buildMostColorsTable() {
-	for bb := 0; bb < 2; bb++ {
-		for bg := 40; bg < 48; bg++ {
-			for fg := 30; fg < 38; fg++ {
-
-				if !ickyTable[[3]int{bb, fg, bg}] {
-					if bg == 40 {
-						// We assume default background for most of this program; on most color
-						// changes we reset with \x1b[0m anyway, so we needn't print the black
-						// background we assume to be default (see note in ickyTable).
-						MostColorsTable = append(MostColorsTable, fmt.Sprintf("\x1b[%d;%dm", bb, fg))
-					} else {
-						MostColorsTable = append(MostColorsTable, fmt.Sprintf("\x1b[%d;%d;%dm", bb, fg, bg))
-					}
-				}
-			}
-		}
-	}
-}
-
-func UniqueColorForString(x string) string {
-	if len(MostColorsTable) < 1 {
-		buildMostColorsTable()
-	}
-
-	sum := int(xxh3.HashString(x) % uint64(len(MostColorsTable)))
-
-	return MostColorsTable[sum]
 }
