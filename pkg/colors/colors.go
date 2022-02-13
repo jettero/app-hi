@@ -99,6 +99,14 @@ var uniqueColorsTable = []string{
 	"cyan on_blue",
 	// "yellow on_blue", // yellow on blue is readable, but indistinguishable from white on blue
 	// "lime on_blue", // same with cyan and lime
+
+	"yellow on_red",
+	"white on_red",
+	"white on_magenta",
+	"pitch on_white",
+	"white on_black",
+	"black on_yellow",
+	"blue on_green",
 }
 
 func FixColor(color string, words string) []string {
@@ -117,8 +125,11 @@ func FixColor(color string, words string) []string {
 	var ret []string
 	for _, f := range fields {
 		if f == "unique" || f == "hash" {
-			idx := int(xxh3.HashString(words) % uint64(len(uniqueColorsTable)))
+			sum := xxh3.HashString(words)
+			idx := int(sum % uint64(len(uniqueColorsTable)))
 			ret = append(ret, strings.Fields(uniqueColorsTable[idx])...)
+			// as soon as we hit unique, we take over processing of the whole color token set
+			break
 		}
 		if g := NickTable[f]; len(g) > 0 {
 			ret = append(ret, strings.Fields(g)...)
