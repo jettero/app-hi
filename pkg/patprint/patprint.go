@@ -3,17 +3,37 @@ package patprint
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
 	c "github.com/jettero/app-hi/pkg/colors"
+	"github.com/rubrikinc/go-pcre" // pcre.*
+	// The built in regexp.* in Golang is absolutely awful.
+	//
+	// The author's failed quest to understand backtracking lead him to write a
+	// stupid dumb NFA on DFA O(n) library without any backtracking. The O(n)
+	// goal is worth persuing I think, but modern RE engine authors leave it to
+	// the programmers to avoid time complexity bombs in their regular
+	// expressions.
+	//
+	// Inaddition to being stupid and anachronistic the package is also
+	// provably less performant than pcre, and (I'm told) completely falls over
+	// trying to deal with a megabyte of data — though I didn't follow the
+	// particulars of that story, so perhaps it's not as bad as I'm claiming
+	// here.
+	//
+	// Regardless, even if the all of the above is completely false; perl,
+	// python, pike, ruby, php, grep, sed, awk, vim and even shell programmers
+	// are going to expect modern regular expressions with backtracking, so Go
+	// can go climb up its own ass and cram it in harder with all these
+	//
+	// FuckingTabCharacters
 )
 
 type pattern struct {
 	pattern string
 	color   string
-	matcher *regexp.Regexp
+	matcher pcre.Regexp
 }
 
 type annotation struct {
@@ -22,10 +42,10 @@ type annotation struct {
 	stop  int
 }
 
-func generateAnnotations(color string, indices [][]int) []annotation {
+func generateAnnotations(color string, matches []pcre.Match) []annotation {
 	var ret []annotation
-	for i := 0; i < len(indices); i++ {
-		start, stop := indices[i][0], indices[i][1]
+	for _, m := range matches {
+		start, stop := m.Loc[0], m.Loc[1]
 		did_something := false
 		if len(ret) > 0 {
 			if ret[len(ret)-1].stop == start {
@@ -44,15 +64,28 @@ func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
 	for i := 1; i+1 < len(args); i += 2 {
+		re, err := pcre.CompileJIT(args[i], 0, 0)
+		// CompileJIT does a Compile and a Study. It's expensive, but probably
+		// makes the text processing much faster.
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", args[i], err))
+			continue
+		}
 		p := pattern{
 			pattern: args[i],
-			matcher: regexp.MustCompile(args[i]),
+			matcher: re,
 			color:   args[i+1],
 		}
 		patterns = append(patterns, p)
 	}
 
 	return patterns
+}
+
+func PostProcessPatterns(patterns []pattern) {
+	for _, p := range patterns {
+		p.matcher.FreeRegexp()
+	}
 }
 
 func stripLineEndings(line string) string {
@@ -197,18 +230,14 @@ func PrintLine(patterns []pattern, line string) {
 	var annotations_stack [][]annotation
 
 	for i := 0; i < len(patterns); i++ {
-		// Go documentation (perhaps only regexp documentation) is a pile of
-		// shit. When you go a `go doc regexp.Regxep.FindAllStringIndex` yo'll
-		// never find this 'n' param anywhere. If you read the entire `go doc
-		// regexp.Regexp` section, you still won't find it.
-		//
-		// You have to guess to read the entire package help and happen to
-		// notice the brief desctiption in a small-ish paragraph in the middle
-		// of the overview section.
-		//
-		// … the -1 means we want them all, not 0 or 1 or 2 …
-		indices := patterns[i].matcher.FindAllStringIndex(line, -1)
-		a := generateAnnotations(patterns[i].color, indices)
+		matches, err := patterns[i].matcher.FindAll(line, 0)
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("ERROR matching with pattern \"%s\": %v\n",
+				patterns[i].pattern, err))
+			continue
+		}
+
+		a := generateAnnotations(patterns[i].color, matches)
 		if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" {
 			fmt.Printf("pat: %v => %v\n", patterns[i], a)
 		}
