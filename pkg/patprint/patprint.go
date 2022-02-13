@@ -16,7 +16,7 @@ import (
 	// the programmers to avoid time complexity bombs in their regular
 	// expressions.
 	//
-	// Inaddition to being stupid and anachronistic the package is also
+	// In addition to being stupid and anachronistic the package is also
 	// provably less performant than pcre, and (I'm told) completely falls over
 	// trying to deal with a megabyte of data — though I didn't follow the
 	// particulars of that story, so perhaps it's not as bad as I'm claiming
