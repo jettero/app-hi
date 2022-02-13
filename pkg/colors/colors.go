@@ -141,9 +141,12 @@ var ickyTable = map[[3]int]bool{
 }
 
 func FixColor(color string) []string {
+	color = strings.ToLower(color)
+	sep, _ := regexp.Compile(`[^a-z]+`)
 	nc, _ := regexp.Compile(`[nm]c\s+([a-z]+)`)
 	on, _ := regexp.Compile(`on\s+([a-z]+)`)
 	un, _ := regexp.Compile(`un\s+bold`)
+	color = sep.ReplaceAllString(color, " ")
 	color = nc.ReplaceAllString(color, "mc_$1")
 	color = on.ReplaceAllString(color, "on_$1")
 	color = un.ReplaceAllString(color, "unbold")
