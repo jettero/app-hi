@@ -136,7 +136,6 @@ func processConfigAndArgs() []string {
 	return Args
 }
 
-// Execute runs the actual program (meant to be used in main.go)
 func main() {
 	Args := processConfigAndArgs()
 
@@ -144,7 +143,7 @@ func main() {
 		PrintHelp(0)
 	}
 
-	if (len(Args) % 2) != 0 { // we want 1 rather than 0 because of the 0th arg (e.g. ./hi)
+	if (len(Args) % 2) != 0 {
 		os.Stderr.WriteString("ERROR: odd number of arguments")
 		PrintHelp(1)
 	}
@@ -154,10 +153,9 @@ func main() {
 		PrintHelp(1)
 	}
 
-	// convert "a(ab)aba" "purple" to the patterns PrintLine uses
 	patterns := patprint.ProcessPatterns(Args)
-
 	reader := bufio.NewReader(os.Stdin)
+
 	for true {
 		line, err := reader.ReadString('\n')
 		patprint.PrintLine(patterns, line)
