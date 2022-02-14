@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -15,6 +16,8 @@ import (
 
 	c "github.com/jettero/app-hi/pkg/colors"
 	"github.com/jettero/app-hi/pkg/patprint"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 var examples [][]string = [][]string{
@@ -35,7 +38,7 @@ var examples [][]string = [][]string{
 	[]string{"violet", "normal"},
 }
 
-func PrintHelp() {
+func PrintHelp(exitval int) {
 	b := bytes.NewBufferString("\nUSAGE: hi [<regex> <color>]+\n\nExample colors (not an exhaustive list):\n")
 
 	// NOTE to self: In the examples, tabwriter uses tabs which
@@ -74,26 +77,87 @@ func PrintHelp() {
 	}
 
 	fmt.Print(s)
+	os.Exit(exitval)
+}
+
+func complainAboutPatterns(name string, thing interface{}) {
+	os.Stderr.WriteString(fmt.Sprintf("WARNING: \"%s\" should be a list of mappings, given: %v\n", reflect.TypeOf(thing)))
+	os.Exit(1)
+}
+
+func processConfigAndArgs() []string {
+	var group *string = pflag.StringP("group", "g", "patterns",
+		"the name of the group of patterns to load from config (if used)")
+
+	var halp *bool = pflag.BoolP("help", "h", false, "show the help screen text")
+
+	if *halp {
+		PrintHelp(0)
+	}
+
+	viper.SetConfigName(".app-hi")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME")
+
+	pflag.Parse()
+	Args := pflag.Args()
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// who cares I guess
+		} else {
+			os.Stderr.WriteString(fmt.Sprintf("Fatal error in config file: %v\n", err))
+			os.Exit(1)
+		}
+	} else {
+		group_interface := viper.Get(*group)
+		switch patterns := group_interface.(type) {
+		case nil:
+			// this is fine
+		case []interface{}:
+			var asList []string
+			for _, v := range patterns {
+				switch m := v.(type) {
+				case map[interface{}]interface{}:
+					for k, v := range m {
+						asList = append(asList, k.(string))
+						asList = append(asList, v.(string))
+					}
+				default:
+					complainAboutPatterns(*group, group_interface)
+				}
+			}
+			Args = append(asList, Args...)
+		default:
+			complainAboutPatterns(*group, group_interface)
+		}
+	}
+
+	return Args
 }
 
 // Execute runs the actual program (meant to be used in main.go)
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	Args := processConfigAndArgs()
 
-	if len(os.Args) == 1 {
-		PrintHelp()
-		os.Exit(0)
+	if len(Args) == 0 {
+		PrintHelp(0)
 	}
 
-	if (len(os.Args) % 2) != 1 { // we want 1 rather than 0 because of the 0th arg (e.g. ./hi)
+	if (len(Args) % 2) != 0 { // we want 1 rather than 0 because of the 0th arg (e.g. ./hi)
 		os.Stderr.WriteString("ERROR: odd number of arguments")
-		PrintHelp()
-		os.Exit(1)
+		PrintHelp(1)
+	}
+
+	if stat, _ := os.Stdin.Stat(); stat.Mode()&os.ModeCharDevice != 0 {
+		os.Stderr.WriteString("ERROR: stdin appears to be an interactive shell. Pipe something in instead")
+		PrintHelp(1)
 	}
 
 	// convert "a(ab)aba" "purple" to the patterns PrintLine uses
-	patterns := patprint.ProcessPatterns(os.Args)
+	patterns := patprint.ProcessPatterns(Args)
 
+	reader := bufio.NewReader(os.Stdin)
 	for true {
 		line, err := reader.ReadString('\n')
 		patprint.PrintLine(patterns, line)

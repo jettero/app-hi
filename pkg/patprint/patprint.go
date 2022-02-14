@@ -63,7 +63,7 @@ func generateAnnotations(color string, matches []pcre.Match) []annotation {
 func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
-	for i := 1; i+1 < len(args); i += 2 {
+	for i := 0; i+1 < len(args); i += 2 {
 		re, err := pcre.CompileJIT(args[i], 0, 0)
 		// CompileJIT does a Compile and a Study. It's expensive, but probably
 		// makes the text processing much faster.

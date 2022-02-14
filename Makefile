@@ -7,15 +7,6 @@ CMD_NAMES := $(patsubst cmd/%,%, $(wildcard cmd/*))
 
 run-examples: run-hi
 
-stripped: hi
-	strip $<
-
-valgrind: hi
-	echo supz | valgrind \
-		-v --track-origins=yes --leak-check=full --log-file=valgrind.log \
-		./hi supz lime
-	less -eS +G valgrind.log
-
 h run-hi:
 	< cruft/dhcp.log ./hi.sh \
 		. coal \
@@ -29,6 +20,12 @@ h run-hi:
 		'(?<=\()[^)]+(?=\))' yellow \
 		eth0 lime \
 		eth1 umber
+
+valgrind: hi
+	echo supz | valgrind \
+		-v --track-origins=yes --leak-check=full --log-file=valgrind.log \
+		./hi supz lime
+	less -eS +G valgrind.log
 
 info list: .deps
 	@ echo ./.deps:; sed 's/^/	/g' .deps; echo
@@ -47,6 +44,9 @@ $(CMD_NAMES): $(PKG_FILES) Makefile
 .deps: Makefile
 	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; \
 		echo "	go build -v ./cmd/$$i"; done > $@
+
+stripped: hi
+	strip $<
 
 include .deps
 
