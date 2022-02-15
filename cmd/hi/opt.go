@@ -47,7 +47,7 @@ func ProcessConfigAndArgs() []string {
 	var group *string = pflag.StringP("group", "g", "patterns",
 		"the name of the group of patterns to load from config")
 	var list *bool = pflag.BoolP("list", "l", false, "show the list of patterns and exit")
-	var list *bool = pflag.BoolP("version", "v", false, "show build version and exit")
+	var verp *bool = pflag.BoolP("version", "v", false, "show build version and exit")
 	var halp *bool = pflag.BoolP("help", "h", false, "show the help screen text")
 
 	pflag.Parse()
@@ -55,6 +55,11 @@ func ProcessConfigAndArgs() []string {
 
 	if *halp {
 		PrintHelp(0)
+	}
+
+	if *verp {
+		PrintBuildVersion()
+		os.Exit(0)
 	}
 
 	var locations []string

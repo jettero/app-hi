@@ -43,7 +43,7 @@ $(CMD_NAMES): $(PKG_FILES) Makefile
 
 .deps: Makefile
 	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; \
-		echo "	go build -v ./cmd/$$i"; done > $@
+		echo "	./version-izer.sh -v ./cmd/$$i"; done > $@
 
 stripped: hi
 	strip $<
