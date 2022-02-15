@@ -45,7 +45,7 @@ $(CMD_NAMES): $(PKG_FILES) Makefile
 	@ for i in $(CMD_NAMES); do echo $$i: cmd/$$i/main.go; \
 		echo "	./version-izer.sh -v ./cmd/$$i"; done > $@
 
-stripped: hi
+release stripped: hi
 	strip $<
 
 include .deps
