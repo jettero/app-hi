@@ -1,5 +1,3 @@
-///usr/bin/env go run "$0" "$@" ; exit $?
-
 package main
 
 import (
@@ -8,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"reflect"
 	"sort"
 	"strings"
 
@@ -17,7 +14,6 @@ import (
 	c "github.com/jettero/app-hi/pkg/colors"
 	"github.com/jettero/app-hi/pkg/patprint"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 var examples [][]string = [][]string{
@@ -39,7 +35,11 @@ var examples [][]string = [][]string{
 }
 
 func PrintHelp(exitval int) {
-	b := bytes.NewBufferString("\nUSAGE: hi [<regex> <color>]+\n\nExample colors (not an exhaustive list):\n")
+	b := bytes.NewBufferString("\nUSAGE: hi [<regex> <color>]+\n")
+	pflag.CommandLine.SetOutput(b)
+	pflag.PrintDefaults()
+
+	fmt.Fprintf(b, "\nExample colors (not an exhaustive list):\n")
 
 	// NOTE to self: In the examples, tabwriter uses tabs which
 	// absofuckinglutely suck ass (like the rest of tabs in Golang and any
@@ -76,68 +76,20 @@ func PrintHelp(exitval int) {
 		s = strings.Replace(s, fmt.Sprintf(".%s.", item), fmt.Sprintf("%s%s", c.Color(item, item), RST), -1)
 	}
 
-	fmt.Print(s)
-	os.Exit(exitval)
+	fmt.Println(s)
+
+	if exitval >= 0 {
+		os.Exit(exitval)
+	}
 }
 
-func complainAboutPatterns(name string, thing interface{}) {
-	os.Stderr.WriteString(fmt.Sprintf("WARNING: \"%s\" should be a list of mappings, given: %v\n", reflect.TypeOf(thing)))
-	os.Exit(1)
-}
-
-func processConfigAndArgs() []string {
-	var group *string = pflag.StringP("group", "g", "patterns",
-		"the name of the group of patterns to load from config (if used)")
-
-	var halp *bool = pflag.BoolP("help", "h", false, "show the help screen text")
-
-	if *halp {
-		PrintHelp(0)
-	}
-
-	viper.SetConfigName(".app-hi")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME")
-
-	pflag.Parse()
-	Args := pflag.Args()
-
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// who cares I guess
-		} else {
-			os.Stderr.WriteString(fmt.Sprintf("Fatal error in config file: %v\n", err))
-			os.Exit(1)
-		}
-	} else {
-		group_interface := viper.Get(*group)
-		switch patterns := group_interface.(type) {
-		case nil:
-			// this is fine
-		case []interface{}:
-			var asList []string
-			for _, v := range patterns {
-				switch m := v.(type) {
-				case map[interface{}]interface{}:
-					for k, v := range m {
-						asList = append(asList, k.(string))
-						asList = append(asList, v.(string))
-					}
-				default:
-					complainAboutPatterns(*group, group_interface)
-				}
-			}
-			Args = append(asList, Args...)
-		default:
-			complainAboutPatterns(*group, group_interface)
-		}
-	}
-
-	return Args
+func pflagErrorUsage() {
+	PrintHelp(-1)
 }
 
 func main() {
-	Args := processConfigAndArgs()
+	pflag.Usage = pflagErrorUsage
+	Args := ProcessConfigAndArgs()
 
 	if len(Args) == 0 {
 		PrintHelp(0)

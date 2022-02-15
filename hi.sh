@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec ./cmd/hi/main.go "$@"
+exec go run ./cmd/hi "$@"
