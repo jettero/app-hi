@@ -22,7 +22,12 @@ jobs:
         goarch: amd64
 
         # I'm not convinced you can actually do much authentication with a
-        # crypto hash and no signature authority.  but we may as well use one
+        # crypto hash and no signature authority. But we may as well use one
         # that actually matters if we're going to bother with it at all.
         md5sum: false
         sha256sum: true
+
+        # If I re-create the tag or something, overwrite the asset. I fail to
+        # see how this comes up unless I re-run it or something, but it feels
+        # right to overwrite.
+        overwrite: true
