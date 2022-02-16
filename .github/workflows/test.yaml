@@ -1,0 +1,24 @@
+# .github/workflows/release.yaml
+
+name: "Tests"
+
+on: push
+
+jobs:
+  test-matrix:
+    name: test
+    runs-on: ${{ matrix.items.os }}
+    strategy:
+      matrix:
+        items:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+
+    steps:
+      - run: "./version-izer.sh -v ./cmd/hi"
+      - run: "echo test1 | ./hi.sh test1 green | grep -qs '32m.*test1.*m$'"
+      - run: "echo test1 | ./hi    test1 green | grep -qs '32m.*test1.*m$'"
