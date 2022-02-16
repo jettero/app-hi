@@ -19,6 +19,7 @@ jobs:
             goarch: amd64
 
     steps:
-      - run: "./version-izer.sh -v ./cmd/hi"
-      - run: "echo test1 | ./hi.sh test1 green | grep -qs '32m.*test1.*m$'"
-      - run: "echo test1 | ./hi    test1 green | grep -qs '32m.*test1.*m$'"
+      - run: pwd; ls -al
+      #- run: "./version-izer.sh -v ./cmd/hi"
+      #- run: "echo test1 | ./hi.sh test1 green | grep -qs '32m.*test1.*m$'"
+      #- run: "echo test1 | ./hi    test1 green | grep -qs '32m.*test1.*m$'"
