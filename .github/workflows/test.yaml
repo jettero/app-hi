@@ -10,6 +10,8 @@ jobs:
     runs-on: ${{ matrix.items.os }}
     strategy:
       matrix:
+        # items is my way of flattening the matrix. I don't want a crossproduct
+        # of combinations, I just want a couple list items
         items:
           - os: ubuntu-latest
             goos: linux
