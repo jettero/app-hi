@@ -7,8 +7,8 @@ on:
     types: [created]
 
 jobs:
-  release-linux-x86_64:
-    name: release linux/x86_64
+  release-linux-amd64:
+    name: release linux/amd64
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -17,5 +17,6 @@ jobs:
         build_command: make release
         # github_token: ${{ secrets.GITHUB_TOKEN }}
         github_token: ${{ github.token }}
+        binary_name: hi
         goos: linux
         goarch: amd64
