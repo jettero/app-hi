@@ -7,9 +7,20 @@ on:
     types: [created]
 
 jobs:
-  release:
-    name: release
+  release-matrix:
+    name: Red Pill
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+
+
     steps:
     - uses: actions/checkout@v2
     - uses: wangyoucao577/go-release-action@v1.24
@@ -19,13 +30,9 @@ jobs:
         github_token: ${{ github.token }}
         binary_name: hi
 
-        goos: [linux, windows, darwin]
-        goarch: ["386", amd64, arm64]
-        exclude:
-          - goarch: "386"
-            goos: darwin
-          - goarch: arm64
-            goos: windows
+        # from the matrix (above)
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
 
         # I'm not convinced you can actually do much authentication with a
         # crypto hash and no signature authority. But we may as well use one
