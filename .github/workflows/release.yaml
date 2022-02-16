@@ -8,7 +8,7 @@ on:
 
 jobs:
   release-matrix:
-    name: Red Pill
+    name: build bin
     runs-on: ubuntu-latest
     strategy:
       matrix:
