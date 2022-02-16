@@ -20,3 +20,9 @@ jobs:
         binary_name: hi
         goos: linux
         goarch: amd64
+
+        # I'm not convinced you can actually do much authentication with a
+        # crypto hash and no signature authority.  but we may as well use one
+        # that actually matters if we're going to bother with it at all.
+        md5sum: false
+        sha256sum: true
