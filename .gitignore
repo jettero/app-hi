@@ -2,6 +2,7 @@
 /app-hi
 .deps
 /quick
+/dist
 tags
 wtf
 file[0-9]*
