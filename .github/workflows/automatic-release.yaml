@@ -1,7 +1,7 @@
 
 
 ---
-name: "tagged-release"
+name: "tag2release"
 
 on:
   push:
@@ -9,8 +9,7 @@ on:
       - "v*"
 
 jobs:
-  tagged-rc:
-    name: "Tagged Release Candidate"
+  tag2release:
     runs-on: "ubuntu-latest"
 
     steps:
