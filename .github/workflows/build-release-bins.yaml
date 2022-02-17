@@ -1,13 +1,12 @@
 
-name: "Release"
+name: build release binaries
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
-  release-matrix:
-    name: build bin
+  build:
     runs-on: $${{ matrix.items.os }}
     strategy:
       matrix:
