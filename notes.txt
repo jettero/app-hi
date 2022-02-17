@@ -11,3 +11,6 @@
   known operating system and architecture values respectively, then the
   file is considered to have an implicit build constraint requiring those
   terms (in addition to any explicit constraints in the file)."
+
+  Above is relevant to "wtf, why is cgo darwin broken, what includes those
+  files in github.com/rubrikinc/go-pcre; and how does it pick them.
