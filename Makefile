@@ -3,6 +3,12 @@ NAME := hi
 
 default: release
 
+check:
+	goreleaser check
+
+snapshot: check
+	goreleaser release --snapshot --rm-dist
+
 install: release
 	install hi $$GOPATH/bin/
 
