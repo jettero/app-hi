@@ -1,7 +1,12 @@
 
 NAME := hi
 
-run-examples: run-hi
+default: release
+
+install: release
+	install hi $$GOPATH/bin/
+
+r run-examples: run-hi
 
 h run-hi:
 	< cruft/dhcp.log ./hi.sh \
