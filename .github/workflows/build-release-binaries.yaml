@@ -1,48 +1,13 @@
 
 
 ---
-name: "tag2release"
+name: "Build Release Binaries"
 
 on:
-  push:
-    tags:
-      - "v*"
+  release: [created]
 
 jobs:
-  tag2release:
-    runs-on: "ubuntu-latest"
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: "Build & test"
-        run: |
-          echo "github.refname: ${{ github.ref_name }}"
-          echo "uname:          $(uname -a)"
-
-          set -e
-          echo test1 | ./hi.sh test1 green | grep -qs '32m.*test1.*m$'
-          ./version-izer.sh -v ./cmd/hi
-          ./hi --version
-          echo test1 | ./hi    test1 green | grep -qs '32m.*test1.*m$'
-
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-
-          # attempt to grok the tag, if it contains -rc, it's a prerelease
-          prerelease: ${{ contains(github.ref_name, '-rc') }}
-
-          # most of these use:plugins that use the github token list it as a
-          # secret, which would require you to make a new token and store it in
-          # the action secrets ...
-          #
-          # github_token: ${{ secrets.GITHUB_TOKEN }}
-          #
-          # But github actually creates a short lived action token for the
-          # session that's populated it in the github template variables.
-          repo_token: "${{ github.token }}"
-
-  build:
-    needs: tag2release
+  build-bins:
     runs-on: $${{ matrix.items.os }}
     strategy:
       matrix:
