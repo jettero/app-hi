@@ -30,7 +30,7 @@ jobs:
         with:
 
           # attempt to grok the tag, if it contains -rc, it's a prerelease
-          prerelease: ${{ contains(github.ref_name, "-rc") }}
+          prerelease: ${{ contains(github.ref_name, '-rc') }}
 
           # most of these use:plugins that use the github token list it as a
           # secret, which would require you to make a new token and store it in
