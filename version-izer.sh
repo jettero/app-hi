@@ -13,9 +13,10 @@ BUILD_TIMESTAMP="$(date -u)"
 # STEP 2: Build the ldflags
 
 LDFLAGS=(
-  "-X 'main.Version=${VERSION}'"
-  "-X 'main.CommitHash=${COMMIT_HASH}'"
-  "-X 'main.BuildTime=${BUILD_TIMESTAMP}'"
+  "-X 'main.version=${VERSION}'"
+  "-X 'main.commit=${COMMIT_HASH}'"
+  "-X 'main.date=${BUILD_TIMESTAMP}'"
+  "-X 'main.builtBy=${USER}${HOSTNAME:+@}${HOSTNAME}'"
 )
 
 # STEP 3: Actual Go build process

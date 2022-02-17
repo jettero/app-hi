@@ -13,17 +13,19 @@ import (
 )
 
 var (
-	Version    = ""
-	CommitHash = ""
-	BuildTime  = ""
+	version = ""
+	commit  = ""
+	date    = ""
+	builtBy = ""
 )
 
 func PrintBuildVersion() {
-	if Version != "" {
+	if version != "" {
 		fmt.Printf("Makefile versioning:\n")
-		fmt.Printf("  Version:    %s\n", Version)
-		fmt.Printf("  CommitHash: %s\n", CommitHash)
-		fmt.Printf("  BuildTime:  %s\n", BuildTime)
+		fmt.Printf("  Version: %s\n", version)
+		fmt.Printf("  Commit:  %s\n", commit)
+		fmt.Printf("  Date:    %s\n", date)
+		fmt.Printf("  Builder: %s\n", builtBy)
 
 	} else {
 		fmt.Printf("Makefile versioning unavailable.\n")
