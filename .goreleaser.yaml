@@ -15,7 +15,7 @@ builds:
       - linux_amd64
       - darwin_amd64
     env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
 
     # not sure if I want this
     no_unique_dist_dir: true
