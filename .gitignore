@@ -8,3 +8,4 @@ wtf
 file[0-9]*
 hi.s
 valgrind.log
+*.log
