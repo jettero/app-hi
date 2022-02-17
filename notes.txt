@@ -1,0 +1,13 @@
+
+- https://pkg.go.dev/go/build@go1.13#hdr-Build_Constraints
+  "If a file's name, after stripping the extension and a possible _test
+  suffix, matches any of the following patterns:
+
+  *_GOOS
+  *_GOARCH
+  *_GOOS_GOARCH
+
+  (example: source_windows_amd64.go) where GOOS and GOARCH represent any
+  known operating system and architecture values respectively, then the
+  file is considered to have an implicit build constraint requiring those
+  terms (in addition to any explicit constraints in the file)."
