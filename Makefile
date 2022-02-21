@@ -1,6 +1,9 @@
 
 NAME := hi
 
+# Go sucks so bad you need a shell program to get the major version
+GO_VERSION := $(shell go version | cut -d' ' -f3 | sed -e 's/^go//' | cut -d. -f1,2)
+
 default: release
 
 check:
@@ -39,6 +42,7 @@ complain:
 
 clean:
 	git clean -dfx
+	go mod tidy -v -go=$(GO_VERSION) -compat=$(GO_VERSION)
 
 hi: $(wildcard cmd/hi/*.go) $(wildcard pkg/*/*.go) Makefile version-izer.sh
 	./version-izer.sh -v ./cmd/hi
