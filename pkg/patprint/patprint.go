@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	c "github.com/jettero/app-hi/pkg/colors"
-	"github.com/rubrikinc/go-pcre" // pcre.*
+	"go.arsenm.dev/pcre"
 	// The built in regexp.* in Golang is absolutely awful.
 	//
 	// The author's failed quest to understand backtracking lead him to write a
@@ -24,10 +24,24 @@ import (
 	//
 	// Regardless, even if the all of the above is completely false; perl,
 	// python, pike, ruby, php, grep, sed, awk, vim and even shell programmers
-	// are going to expect modern regular expressions with backtracking, so Go
-	// can go climb up its own ass and cram it in harder with all these
+	// are going to expect modern regular expressions with backtracking, so
+	// Golang can go climb up its own ass.
 	//
-	// FuckingTabCharacters
+	// Yes, you can write exploding RE in PCRE -- but you can do that in any
+	// programming language you choose (C, Perl, Golang, Bash, Prolog,
+	// Smalltalk). Have you ever seen `:(){ :|:& };:`?
+	//
+	// Ever heard of the Halting Problem? This is a rather famously unsolvable
+	// problem going back to Gödel's Incompleteness. We leave it to programmers
+	// to avoid writing programs that don't halt — the compiler literally can't
+	// do that job unless you completely castrate your language. So, good job,
+	// Golang, you castrated RE. Fantastic decision.
+	//
+	// All the other stupid comments they make in the docs about this stupid
+	// decision I take to mean, "I don't like regular expressions" because the
+	// arguments are irrelevant or incorrect.
+	//
+	// See also: Fuck you tab characters.
 )
 
 type pattern struct {
