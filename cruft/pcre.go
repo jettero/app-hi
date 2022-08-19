@@ -15,12 +15,24 @@ func main() {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	matches := re.FindStringSubmatch("ababab")
-	if len(matches) > 0 {
-		fmt.Println("matched!", matches)
-		os.Exit(0)
-	} else {
-		fmt.Println("not matched")
-		os.Exit(1)
-	}
+
+	smatches := re.FindStringSubmatch("ababab")
+	fmt.Println("s-matches:", smatches)
+
+	imatches := re.FindStringSubmatchIndex("ababab")
+	fmt.Println("i-matches:", imatches)
+
+	amatches := re.FindAllStringSubmatchIndex("ababab", -1)
+	fmt.Println("a-matches:", amatches)
+
+	nsmatches := re.FindStringSubmatch("xxxxx")
+	fmt.Println("!s-matches:", nsmatches)
+
+	nimatches := re.FindStringSubmatchIndex("xxxxx")
+	fmt.Println("!i-matches:", nimatches)
+
+	namatches := re.FindAllStringSubmatchIndex("xxxxx", -1)
+	fmt.Println("!a-matches:", namatches)
+
+	os.Exit(0)
 }
