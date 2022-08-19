@@ -1,3 +1,8 @@
+// vi:ft=gomod:
+// vim was trying to load this file as a prolog module or something
+// ?- cool(syntax).
+// no.
+
 module github.com/jettero/app-hi
 
 go 1.18
