@@ -47,7 +47,7 @@ import (
 type pattern struct {
 	pattern string
 	color   string
-	matcher pcre.Regexp
+	matcher *pcre.Regexp
 }
 
 type annotation struct {
@@ -56,19 +56,21 @@ type annotation struct {
 	stop  int
 }
 
-func generateAnnotations(color string, matches []pcre.Match) []annotation {
+func generateAnnotations(color string, all_matches [][]int) []annotation {
 	var ret []annotation
-	for _, m := range matches {
-		start, stop := m.Loc[0], m.Loc[1]
-		did_something := false
-		if len(ret) > 0 {
-			if ret[len(ret)-1].stop == start {
-				ret[len(ret)-1].stop = stop
-				did_something = true
+	for _, matches := range all_matches {
+		for i := 0; i < len(matches); i += 2 {
+			start, stop := matches[i], matches[i+1]
+			did_something := false
+			if len(ret) > 0 {
+				if ret[len(ret)-1].stop == start {
+					ret[len(ret)-1].stop = stop
+					did_something = true
+				}
 			}
-		}
-		if !did_something {
-			ret = append(ret, annotation{color: color, start: start, stop: stop})
+			if !did_something {
+				ret = append(ret, annotation{color: color, start: start, stop: stop})
+			}
 		}
 	}
 	return ret
@@ -78,9 +80,7 @@ func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
 	for i := 0; i+1 < len(args); i += 2 {
-		re, err := pcre.CompileJIT(args[i], 0, 0)
-		// CompileJIT does a Compile and a Study. It's expensive, but probably
-		// makes the text processing much faster.
+		re, err := pcre.Compile(args[i])
 		if err != nil {
 			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", args[i], err))
 			continue
@@ -98,7 +98,7 @@ func ProcessPatterns(args []string) []pattern {
 
 func PostProcessPatterns(patterns []pattern) {
 	for _, p := range patterns {
-		p.matcher.FreeRegexp()
+		p.matcher.Close()
 	}
 }
 
@@ -244,18 +244,12 @@ func PrintLine(patterns []pattern, line string) {
 	var annotations_stack [][]annotation
 
 	for i := 0; i < len(patterns); i++ {
-		matches, err := patterns[i].matcher.FindAll(line, 0)
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("ERROR matching with pattern \"%s\": %v\n",
-				patterns[i].pattern, err))
-			continue
-		}
-
-		a := generateAnnotations(patterns[i].color, matches)
+		matches := patterns[i].matcher.FindAllStringSubmatchIndex(line, -1)
+		annotations := generateAnnotations(patterns[i].color, matches)
 		if os.Getenv("DEBUG_HI") == "1" || os.Getenv("DEBUG_HI_PATPRINT") == "1" {
-			fmt.Printf("pat: %v => %v\n", patterns[i], a)
+			fmt.Printf("pat: %v => %v\n", patterns[i], annotations)
 		}
-		annotations_stack = append(annotations_stack, a)
+		annotations_stack = append(annotations_stack, annotations)
 	}
 
 	combined := combineAnnotationsStack(annotations_stack)
