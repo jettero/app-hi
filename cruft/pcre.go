@@ -16,13 +16,13 @@ func main() {
 		os.Exit(2)
 	}
 
-	smatches := re.FindStringSubmatch("ababab")
+	smatches := re.FindStringSubmatch("abababababab")
 	fmt.Println("s-matches:", smatches)
 
-	imatches := re.FindStringSubmatchIndex("ababab")
+	imatches := re.FindStringSubmatchIndex("abababababab")
 	fmt.Println("i-matches:", imatches)
 
-	amatches := re.FindAllStringSubmatchIndex("ababab", -1)
+	amatches := re.FindAllStringSubmatchIndex("abababababab", -1)
 	fmt.Println("a-matches:", amatches)
 
 	nsmatches := re.FindStringSubmatch("xxxxx")
