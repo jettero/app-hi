@@ -6,19 +6,22 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rubrikinc/go-pcre"
+	"go.arsenm.dev/pcre"
 )
 
 func main() {
-	re, err := pcre.CompileJIT("(ab)", 0, 0)
-	fmt.Println("wtf", print)
+	re, err := pcre.Compile("ab(ab)ab")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	m := re.NewMatcher()
-	if m.MatchString("Bababooey", 0) {
-		fmt.Println("matched!", m.Groups())
+	matches := re.FindSubmatch([]byte("ababab"))
+	if len(matches) > 0 {
+		groups := make([]string, len(matches))
+		for index, match := range matches {
+			groups[index] = string(match)
+		}
+		fmt.Println("matched!", groups)
 		os.Exit(0)
 	} else {
 		fmt.Println("not matched")
