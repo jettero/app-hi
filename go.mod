@@ -5,7 +5,7 @@
 
 module github.com/jettero/app-hi
 
-go 1.17
+go 1.20
 
 require (
 	github.com/hashicorp/golang-lru v0.5.4
