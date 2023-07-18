@@ -76,6 +76,10 @@ func generateAnnotations(color string, all_matches [][]int) []annotation {
 	return ret
 }
 
+func MahCallback() {
+	fmt.Println("supz")
+}
+
 func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
