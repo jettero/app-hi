@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	c "github.com/jettero/app-hi/pkg/colors"
-	"go.arsenm.dev/pcre"
+	"go.elara.ws/pcre"
 	// The built in regexp.* in Golang is absolutely awful.
 	//
 	// The author's failed quest to understand backtracking lead him to write a
@@ -76,8 +76,9 @@ func generateAnnotations(color string, all_matches [][]int) []annotation {
 	return ret
 }
 
-func MahCallback() {
-	fmt.Println("supz")
+func MahCallback(cb *pcre.CalloutBlock) int32 {
+    fmt.Printf("callback engaged: %+v\n", cb)
+    return 0;
 }
 
 func ProcessPatterns(args []string) []pattern {
@@ -89,6 +90,7 @@ func ProcessPatterns(args []string) []pattern {
 			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", args[i], err))
 			continue
 		}
+        re.SetCallout(MahCallback)
 		p := pattern{
 			pattern: args[i],
 			matcher: re,
