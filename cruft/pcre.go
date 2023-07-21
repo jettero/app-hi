@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"go.arsenm.dev/pcre"
+	"go.elara.ws/pcre"
 )
 
 func main() {
