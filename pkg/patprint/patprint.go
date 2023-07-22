@@ -77,7 +77,8 @@ func generateAnnotations(color string, all_matches [][]int) []annotation {
 }
 
 func MahCallback(cb *pcre.CalloutBlock) int32 {
-    fmt.Printf("callback engaged: %+v\n", cb)
+    fmt.Println("----------------------------")
+    fmt.Printf("CalloutBlock: %+v\n", cb)
     return 0;
 }
 
