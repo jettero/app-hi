@@ -9,7 +9,7 @@ import (
 
 	c "github.com/jettero/app-hi/pkg/colors"
 	"github.com/jettero/app-hi/pkg/dfmt"
-	"go.elara.ws/pcre"
+	"github.com/jettero/golang-pcre2"
 	// The built in regexp.* in Golang is absolutely awful.
 	//
 	// The author's failed quest to understand backtracking lead him to write a

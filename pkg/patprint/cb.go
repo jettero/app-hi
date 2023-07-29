@@ -6,7 +6,7 @@ import (
 
 	"encoding/json"
 	"github.com/jettero/app-hi/pkg/dfmt"
-	"go.elara.ws/pcre"
+	"github.com/jettero/golang-pcre2"
 )
 
 func matched(b bool) int32 {

@@ -12,9 +12,13 @@ go 1.20
 // pointers. Until that's resolved, I just published it the way I like it.
 //
 // I consider this temporary though.
-replace go.elara.ws/pcre => github.com/jettero/golang-pcre2 v0.0.0-20230729214243-e12307ce97ca
 
-require go.elara.ws/pcre v0.0.0-20230717141135-d1b9df80a165
+// replace go.elara.ws/pcre => github.com/jettero/golang-pcre2 v0.0.0-20230729214243-e12307ce97ca
+// require go.elara.ws/pcre v0.0.0-20230717141135-d1b9df80a165
+
+// apparently you can't do that temporarily and still publish it, which means I'll need sed and xargs to fix this. fuck you golang
+
+require github.com/jettero/golang-pcre2 v0.0.0-20230729214243-e12307ce97ca
 
 require (
 	github.com/hashicorp/golang-lru v0.5.4
