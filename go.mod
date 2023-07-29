@@ -7,17 +7,13 @@ module github.com/jettero/app-hi
 
 go 1.20
 
-// note to self, to get this private repo replacer to actually work, ..., you
-// need the recommended .gitconfig:
+// Elara's not happy with the way I changed this to get it working. We're
+// having a dispute about the way the math should work out on the ovector
+// pointers. Until that's resolved, I just published it the way I like it.
 //
-//  [url "ssh://git@github.com"]
-//      insteadOf = https://github.com
-//
-// but you also need (and this seems to be undocumented in the faq):
-//   export GOPRIVATE=github.com/jettero/golang-pcre2
-// that's about what I expect from golang docs though. not enough information
-
+// I consider this temporary though.
 replace go.elara.ws/pcre => github.com/jettero/golang-pcre2 v0.0.0-20230729214243-e12307ce97ca
+
 require go.elara.ws/pcre v0.0.0-20230717141135-d1b9df80a165
 
 require (
