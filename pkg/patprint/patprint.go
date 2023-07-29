@@ -76,9 +76,39 @@ func generateAnnotations(color string, all_matches [][]int) []annotation {
 	return ret
 }
 
+func matched(b bool) int32 {
+    if b {
+        fmt.Printf(" match=yes\n")
+        return 0;
+    }
+    fmt.Printf(" match=no\n")
+    return 1;
+}
+
 func MahCallback(cb *pcre.CalloutBlock) int32 {
-    fmt.Println("----------------------------")
-    fmt.Printf("CalloutBlock: %+v\n", cb)
+    if cb.CalloutNumber == 0 {
+        s := strings.Split(cb.CalloutString, " ")
+        m := len(cb.Substrings)-1
+        if len(s) == 2 && m >= 0 {
+            // fmt.Printf("cb: %+v\n", cb)
+            fmt.Printf("s: %+v m: %d", s, m)
+            cb_v, err := strconv.ParseFloat(s[1], 64)
+            if err == nil {
+                fmt.Printf(" cb_v=%0.2f ", cb_v)
+                ss_m, err := strconv.ParseFloat(cb.Substrings[m], 64)
+                if err == nil {
+                    fmt.Printf(" ss_m=%0.2f", ss_m)
+                    switch s[0] {
+                    case ">":  fmt.Printf(" op=%s", s[0]); return matched(ss_m >  cb_v)
+                    case "<":  fmt.Printf(" op=%s", s[0]); return matched(ss_m <  cb_v)
+                    case ">=": fmt.Printf(" op=%s", s[0]); return matched(ss_m >= cb_v)
+                    case "<=": fmt.Printf(" op=%s", s[0]); return matched(ss_m <= cb_v)
+                    }
+                }
+            }
+            fmt.Printf("\n")
+        }
+    }
     return 0;
 }
 

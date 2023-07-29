@@ -7,6 +7,7 @@ module github.com/jettero/app-hi
 
 go 1.20
 
+// replace go.elara.ws/pcre => ../pcre
 require go.elara.ws/pcre v0.0.0-20230717141135-d1b9df80a165
 
 require (
