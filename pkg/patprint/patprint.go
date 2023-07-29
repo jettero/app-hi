@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	c "github.com/jettero/app-hi/pkg/colors"
+	"github.com/jettero/app-hi/pkg/dfmt"
 	"go.elara.ws/pcre"
 	// The built in regexp.* in Golang is absolutely awful.
 	//
@@ -80,15 +81,25 @@ func generateAnnotations(color string, all_matches [][]int) []annotation {
 func ProcessPatterns(args []string) []pattern {
 	var patterns []pattern
 
+	cb_fixer, err := pcre.Compile("\\(\\?T([<>]=?)\\s*([\\d\\.-]+)\\)")
+	if err != nil {
+		// If this is going to happen, it's going to be before we publish, so
+		// just panic and get it over-with
+		panic(fmt.Sprintf("INTERNAL ERROR: %s", err))
+	}
+
+	dfmt.Printf("---=: compiling patterns\n")
 	for i := 0; i+1 < len(args); i += 2 {
-		re, err := pcre.Compile(args[i])
+		pat := cb_fixer.ReplaceAllString(args[i], "(\\b-?\\d+\\b)(?C\"$1 $2\")") // i.e. (\b[:digits-n-stuff:]\b)(?C"> 42")
+		dfmt.Printf("  - %s\n", pat)
+		re, err := pcre.Compile(pat)
 		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", args[i], err))
+			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", pat, err))
 			continue
 		}
 		re.SetCallout(MahCallback)
 		p := pattern{
-			pattern: args[i],
+			pattern: pat,
 			matcher: re,
 			color:   args[i+1],
 		}

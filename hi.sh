@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec go run -tags debug ./cmd/hi "$@"
+exec go run ${DFMT:+-tags debug} ./cmd/hi "$@"
