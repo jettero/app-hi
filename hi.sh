@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec go run ./cmd/hi "$@"
+exec go run -tags debug ./cmd/hi "$@"
