@@ -1,7 +1,7 @@
 package patprint
 
 import (
-    "fmt"
+	"fmt"
 
 	"os"
 	"strconv"
@@ -86,7 +86,7 @@ func ProcessPatterns(args []string) []pattern {
 			os.Stderr.WriteString(fmt.Sprintf("ERROR compiling pattern \"%s\": %v\n", args[i], err))
 			continue
 		}
-        re.SetCallout(MahCallback)
+		re.SetCallout(MahCallback)
 		p := pattern{
 			pattern: args[i],
 			matcher: re,
